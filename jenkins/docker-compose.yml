@@ -1,0 +1,23 @@
+version: '3.7'
+services:
+  jenkins:
+    build: .
+    privileged: true
+    user: root
+    environment:
+      TZ: "Europe/Kiev"
+    ports:
+      - 8081:8080
+      - 50000:50000
+    container_name: jenkins
+    volumes:
+      - ./jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/local/bin/docker:/usr/local/bin/docker
+    networks:
+      jenkins_vlan:
+        ipv4_address: {{jenkins_ip}}
+
+networks:
+  jenkins_vlan:
+    external: true
