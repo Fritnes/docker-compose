@@ -1,0 +1,4 @@
+.env
+*.log
+volumes/
+docker-compose.override.yml
