@@ -1,8 +1,11 @@
 FROM jenkins/jenkins:lts
 USER root
-RUN apt update -y
-RUN apt-get install software-properties-common -y
-RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
-RUN apt-add-repository "deb [arch=$(dpkg --print-architecture)] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-RUN apt update -y
-RUN apt install postgresql-client ansible wget zip terraform -y
+RUN apt-get update && apt-get install -y --no-install-recommends gnupg \
+	&& install -m 0755 -d /etc/apt/keyrings \
+	&& curl -fsSL https://apt.releases.hashicorp.com/gpg -o /tmp/hashicorp.asc \
+	&& gpg --dearmor -o /etc/apt/keyrings/hashicorp.gpg /tmp/hashicorp.asc \
+	&& chmod a+r /etc/apt/keyrings/hashicorp.gpg \
+	&& rm /tmp/hashicorp.asc \
+	&& suite="$(. /etc/os-release && printf '%s' "${UBUNTU_CODENAME:-$VERSION_CODENAME}")" \
+	&& printf '%s\n' 'Types: deb' 'URIs: https://apt.releases.hashicorp.com' "Suites: $suite" 'Components: main' "Architectures: $(dpkg --print-architecture)" 'Signed-By: /etc/apt/keyrings/hashicorp.gpg' > /etc/apt/sources.list.d/hashicorp.sources
+RUN apt-get update && apt-get install -y postgresql-client ansible wget zip terraform
